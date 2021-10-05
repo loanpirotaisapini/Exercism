@@ -1,3 +1,11 @@
-export function accumulate(list: unknown, accumulator: unknown): never {
-  throw new Error('Remove this statement and implement this function')
+export function accumulate(
+  list: (string | number)[],
+  accumulator: (param: any) => any): any[] {
+  let result: unknown[] = [];
+
+  for (const item of list) {
+    result.push(accumulator(item));
+  }
+
+  return result;
 }
