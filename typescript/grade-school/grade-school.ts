@@ -1,5 +1,4 @@
 export class GradeSchool {
-
   private readonly school: SchoolMap = new SchoolMap();
 
   /**
@@ -7,18 +6,24 @@ export class GradeSchool {
    * @returns Object whith key: grade and value: students
    */
   roster(): { [key: number]: string[] } {
-
-    const schoolMap: SchoolMap = new SchoolMap();
-
     let result: { [key: number]: string[] } = {};
 
-    this.school.forEach((value: string[], key: number) => {
-      schoolMap.set(key, value);
-    });
+    const newStudentRoster: SchoolMap = new SchoolMap();
+    const keys: number[] = [];
 
-    schoolMap.forEach((value: string[], key: number) => {
+    for (const key of this.school.keys()) {
+      keys.push(key);
+    }
+    keys.sort();
+
+    for (const each of keys) {
+      const values = this.school.get(each) || [];
+      newStudentRoster.set(each, Array.from(values).sort());
+    }
+
+    newStudentRoster.forEach((value: string[], key: number) => {
       Object.assign(result, {
-        [key]: value
+        [key]: value,
       });
     });
 
@@ -31,20 +36,13 @@ export class GradeSchool {
    * @param schoolGrade The school's grade
    */
   add(studentName: string, schoolGrade: number): void {
+    const isExist = this.checkIfExist(studentName);
 
-    // We can't put a student in a grade if he's already in another
-    let alreadyExists: boolean = false;
-    let schoolMap: Record<number, string[]>[] = [];
-
-    this.school.forEach((value: string[], key: number) => {
-      schoolMap.push({ [key]: value });
-    });
-    
-    let students: string[] = this.school.get(schoolGrade) || [];
-
-    if (!alreadyExists) students.push(studentName);
-
-    this.school.set(schoolGrade, students.sort());
+    if (!isExist) {
+      const data = this.school.get(schoolGrade);
+      data.push(studentName);
+      this.school.set(schoolGrade, data.sort());
+    }
   }
 
   /**
@@ -53,7 +51,6 @@ export class GradeSchool {
    * @returns String array of the students
    */
   grade(searchedGrade: number): string[] {
-
     const schoolMap: SchoolMap = new SchoolMap();
 
     this.school.forEach((value: string[], key: number) => {
@@ -62,12 +59,20 @@ export class GradeSchool {
 
     return schoolMap.get(searchedGrade);
   }
+
+  private checkIfExist(studentNameToAdd: string): boolean {
+    let valToReturn = false;
+
+    this.school.forEach((value: string[]) => {
+      if (value.includes(studentNameToAdd)) valToReturn = true;
+    });
+
+    return valToReturn;
+  }
 }
 
 export class SchoolMap extends Map<number, string[]> {
-
   public get(key: number): string[] {
-
     const result: string[] = super.get(key) || [];
     return [...result];
   }
