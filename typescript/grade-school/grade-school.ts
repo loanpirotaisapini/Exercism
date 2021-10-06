@@ -1,10 +1,14 @@
 export class GradeSchool {
 
-  private school: SchoolMap = new SchoolMap();
+  private readonly school: SchoolMap = new SchoolMap();
 
+  /**
+   * Displays the students and the grades they're in
+   * @returns Object whith key: grade and value: students
+   */
   roster(): { [key: number]: string[] } {
 
-    let schoolMap: SchoolMap = new SchoolMap();
+    const schoolMap: SchoolMap = new SchoolMap();
 
     let result: { [key: number]: string[] } = {};
 
@@ -21,26 +25,50 @@ export class GradeSchool {
     return result;
   }
 
+  /**
+   * Put a student in a grade
+   * @param studentName The student's name
+   * @param schoolGrade The school's grade
+   */
   add(studentName: string, schoolGrade: number): void {
-    const students = this.school.get(schoolGrade) || [];
 
-    students.push(studentName);
+    // We can't put a student in a grade if he's already in another
+    let alreadyExists: boolean = false;
+    let schoolMap: Record<number, string[]>[] = [];
+
+    this.school.forEach((value: string[], key: number) => {
+      schoolMap.push({ [key]: value });
+    });
+    
+    let students: string[] = this.school.get(schoolGrade) || [];
+
+    if (!alreadyExists) students.push(studentName);
+
     this.school.set(schoolGrade, students.sort());
-
   }
 
+  /**
+   * Displays the students who're in the chosen grade
+   * @param searchedGrade The grade we want to display the students
+   * @returns String array of the students
+   */
   grade(searchedGrade: number): string[] {
-    return (typeof this.school.get(searchedGrade) === 'undefined') ? [] : this.school.get(searchedGrade) as string[];
+
+    const schoolMap: SchoolMap = new SchoolMap();
+
+    this.school.forEach((value: string[], key: number) => {
+      schoolMap.set(key, value);
+    });
+
+    return schoolMap.get(searchedGrade);
   }
 }
 
-
 export class SchoolMap extends Map<number, string[]> {
-  
+
   public get(key: number): string[] {
 
-    const result = super.get(key) || [];
+    const result: string[] = super.get(key) || [];
     return [...result];
   }
-
 }
